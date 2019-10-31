@@ -5,12 +5,21 @@ from text_summary import TextSummary
 from nltk import *
 from nltk.tokenize import SpaceTokenizer
 import nltk
+import spacy
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
+def entities(list_string):
+    nlp = spacy.load('en')
+    sentence=' '.join(list_string)
+    doc = nlp(sentence)
+    # document level
+    ents = [(e.text, e.label_, e.kb_id_) for e in doc.ents]
+    return ents
 
-#basically extracts the entities 
+#basically extracts the entities
+'''
 def get_entities(args):
     qry = args
     tokens = nltk.tokenize.word_tokenize(qry)
@@ -22,6 +31,13 @@ def get_entities(args):
         for leave in subtree.leaves():
             person.append(leave)
     print("person=", person)
+'''
+
+def get_labels(sentence):
+    for sent in nltk.sent_tokenize(sentence):
+        for chunk in nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(sent))):
+            if hasattr(chunk, 'label'):
+                print(chunk.label(), ' '.join(c[0] for c in chunk))
 
 if __name__ == "__main__":
     url = 'https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'
@@ -54,5 +70,7 @@ if __name__ == "__main__":
     x=" ".join(nes)
     #x=re.findall(r"[^()0-9-]+", x)
     words=nltk.word_tokenize(x)
+    print("\n", 'Entities: ', words)
     words = list(dict.fromkeys(words))
-    print("\n",words)
+    ent = entities(words)
+    print(ent)
