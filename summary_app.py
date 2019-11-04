@@ -6,6 +6,8 @@ from nltk import *
 from nltk.tokenize import SpaceTokenizer
 import nltk
 import spacy
+from io import StringIO
+import sys
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -71,6 +73,27 @@ if __name__ == "__main__":
     #x=re.findall(r"[^()0-9-]+", x)
     words=nltk.word_tokenize(x)
     print("\n", 'Entities: ', words)
+
+    # Entity dict:
+    #   Keys: entities
+    #   Values: lists of strings
+    #       Each string includes entity + five words before + five words after
+    tokens = word_tokenize(text)
+    tokenized_text = Text(tokens)
+    entitydict = {}
+
+    for entity in words:
+        old_stdout = sys.stdout
+        mystdout = StringIO()
+        sys.stdout = mystdout
+        tokenized_text.findall("<.*><.*><.*><.*><.*><{}><.*><.*><.*><.*><.*>".format(entity))
+        sys.stdout = old_stdout
+        surrounding_words = mystdout.getvalue()
+        surrounding_words = value.replace('\n',' ')
+        surrounding_words_list = value.split('; ')
+        entitydict[entity] = surrounding_words_list
+
+    print(entitydict)
     words = list(dict.fromkeys(words))
     ent = entities(words)
     print(ent)
