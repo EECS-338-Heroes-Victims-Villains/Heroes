@@ -1,5 +1,6 @@
 from gensim.summarization import summarize
 from bs4 import BeautifulSoup
+from textblob import TextBlob
 
 
 class TextSummary:
@@ -14,5 +15,8 @@ class TextSummary:
         return whole_text, title
 
     def summarize_text(self, text):
-        return summarize(text, word_count=200)
+        return summarize(text,ratio=1,split=False)
+
+score=TextBlob('').sentiment
+print(score)
 
