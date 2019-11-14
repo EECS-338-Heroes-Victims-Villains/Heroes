@@ -6,6 +6,10 @@ import spacy
 import nltk
 from io import StringIO
 import sys
+from io import StringIO
+import sys
+
+
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -60,6 +64,10 @@ if __name__ == "__main__":
     entitydict = {}
 
     #extracts the surrounding words
+    tokens = word_tokenize(text)
+    tokenized_text = Text(tokens)
+    entitydict = {}
+
     for entity in words:
         old_stdout = sys.stdout
         mystdout = StringIO()
@@ -73,6 +81,11 @@ if __name__ == "__main__":
 
     print(entitydict)
     print('\n')
+    surrounding_words = value.replace('\n',' ')
+    surrounding_words_list = value.split('; ')
+    entitydict[entity] = surrounding_words_list
+
+    print(entitydict)
     words = list(dict.fromkeys(words))
     ent = entities(words)
     list_ent=[]
