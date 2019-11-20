@@ -8,7 +8,8 @@ from io import StringIO
 import sys
 from io import StringIO
 import sys
-
+from Entity import Entity
+from textblob import TextBlob
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -55,37 +56,6 @@ if __name__ == "__main__":
     print("\n", 'Entities: ', words)
     print('\n')
 
-    # Entity dict:
-    #   Keys: entities
-    #   Values: lists of strings
-    #       Each string includes entity + five words before + five words after
-    tokens = nltk.word_tokenize(text)
-    tokenized_text = nltk.Text(tokens)
-    entitydict = {}
-
-    #extracts the surrounding words
-    tokens = word_tokenize(text)
-    tokenized_text = Text(tokens)
-    entitydict = {}
-
-    for entity in words:
-        old_stdout = sys.stdout
-        mystdout = StringIO()
-        sys.stdout = mystdout
-        tokenized_text.findall("<.*><.*><.*><.*><.*><{}><.*><.*><.*><.*><.*>".format(entity))
-        sys.stdout = old_stdout
-        surrounding_words = mystdout.getvalue()
-        surrounding_words = surrounding_words.replace('\n', ' ')
-        surrounding_words_list = surrounding_words.split('; ')
-        entitydict[entity] = surrounding_words_list
-
-    print(entitydict)
-    print('\n')
-    surrounding_words = value.replace('\n',' ')
-    surrounding_words_list = value.split('; ')
-    entitydict[entity] = surrounding_words_list
-
-    print(entitydict)
     words = list(dict.fromkeys(words))
     ent = entities(words)
     list_ent=[]
@@ -94,6 +64,43 @@ if __name__ == "__main__":
             list_ent.append(i)
 
     print(list_ent)
+
+    tokens = nltk.word_tokenize(text)
+    tokenized_text = nltk.Text(tokens)
+
+    # Extracts the surrounding words
+    tokens = nltk.word_tokenize(text)
+    tokenized_text = nltk.text.Text(tokens)
+    entitydict = {}
+    all_entities = []
+
+    for pair in list_ent:
+        # Create object
+        entity = pair[0]
+        new_entity_object = Entity(entity)
+
+        # Find surrounding words
+        entity_name = entity.replace(' ', '><')
+        old_stdout = sys.stdout
+        mystdout = StringIO()
+        sys.stdout = mystdout
+        tokenized_text.findall("<.*><.*><.*><.*><.*><{}><.*><.*><.*><.*><.*>".format(entity_name))
+        sys.stdout = old_stdout
+        surrounding_words = mystdout.getvalue()
+        surrounding_words = surrounding_words.replace('\n', ' ')
+        surrounding_words_list = surrounding_words.split('; ')
+
+        # Find connotations
+        connotations = []
+        for phrase in surrounding_words_list:
+            score = TextBlob(phrase).sentiment.polarity
+            connotations.append(score)
+
+        new_entity_object.surrounding_words = surrounding_words_list
+        new_entity_object.surrounding_words_connotations = connotations
+        all_entities.append(new_entity_object)
+
     print('\n')
-    for i in entitydict:
-        print(i,entitydict[i])
+    for i in all_entities:
+        print(i.entity_name, i.surrounding_words, i.surrounding_words_connotations)
+        print('\n')
