@@ -1,16 +1,23 @@
-var tabURL = ""
-
 chrome.tabs.query({
     active: true,
     currentWindow: true
 }, function (tabs) {
-    tabURL = tabs[0].url;
-    alert(tabURL);
+    fetch('http://127.0.0.1:5000/story_chars/?url=' + tabs[0].url).then(data => {
+        return data.json()
+    }).then(res => {
+        console.log(res)
+        var h = document.getElementById("hero");
+        var vil = document.getElementById("villain");
+        var vic = document.getElementById("victim");
+        h.appendChild(document.createTextNode(res[0]));
+        vil.appendChild(document.createTextNode(res[1]));
+        vic.appendChild(document.createTextNode(res[2]));
+
+    })
+
 });
-var request = new XMLHttpRequest()
 
 // Open a new connection, using the GET request on the URL endpoint
-request.open('GET', 'localhost:5000/story_chars?url=' + tabURL, true)
 
 // request.onload = function () {
 //     // Begin accessing JSON data here

@@ -88,7 +88,6 @@ def get_labels(sentence):
 #         print(i,entitydict[i])
 
 def main_func(url='https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'):
-    url = 'https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'
     # url='https://www.nytimes.com/2019/10/15/world/asia/kashmir-militants.html'
     respond = requests.get(url)
     data = respond.text
@@ -98,8 +97,8 @@ def main_func(url='https://www.nytimes.com/2019/10/16/world/asia/hong-kong-prote
     summary = article.summarize_text(text)
     clean_title = re.sub('\W+', ' ', title)
 
-    print('\033[4m' + title + '\033[0m')
-    print(summary)
+    # print('\033[4m' + title + '\033[0m')
+    # print(summary)
 
     tokenizer = nltk.SpaceTokenizer()
     sentence = summary
@@ -112,8 +111,8 @@ def main_func(url='https://www.nytimes.com/2019/10/16/world/asia/hong-kong-prote
     x = " ".join(nes)
     #x=re.findall(r"[^()0-9-]+", x)
     words = nltk.word_tokenize(x)
-    print("\n", 'Entities: ', words)
-    print('\n')
+    # print("\n", 'Entities: ', words)
+    # print('\n')
 
     # Entity dict:
     #   Keys: entities
@@ -136,8 +135,8 @@ def main_func(url='https://www.nytimes.com/2019/10/16/world/asia/hong-kong-prote
         surrounding_words_list = surrounding_words.split('; ')
         entitydict[entity] = surrounding_words_list
 
-    print(entitydict)
-    print('\n')
+    # print(entitydict)
+    # print('\n')
     words = list(dict.fromkeys(words))
     ent = entities(words)
     list_ent = []
@@ -145,7 +144,9 @@ def main_func(url='https://www.nytimes.com/2019/10/16/world/asia/hong-kong-prote
         if i[1] == 'PERSON' or i[1] == 'GPE' or i[1] == 'ORG':
             list_ent.append(i)
 
-    print(list_ent)
-    print('\n')
+    # print(list_ent)
+    # print('\n')
     for i in entitydict:
         print(i, entitydict[i])
+
+    return list_ent[0:3]

@@ -6,13 +6,13 @@ body {
   font-weight: bold;
 }
 
-.hero h2 {
+#hero h2 {
   border-bottom: 2px solid rgb(34, 68, 34);
 }
-.villain h2 {
+#villain h2 {
   border-bottom: 2px solid rgb(104, 24, 24);
 }
-.victim h2 {
+#victim h2 {
   border-bottom: 2px solid rgb(231, 220, 58);
 }
 .container-fluid {
