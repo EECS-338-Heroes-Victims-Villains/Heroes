@@ -12,7 +12,8 @@ chrome.tabs.query({
         h.appendChild(document.createTextNode(res[0]));
         vil.appendChild(document.createTextNode(res[1]));
         vic.appendChild(document.createTextNode(res[2]));
-
+        document.getElementById("loaderr").style.display = "none";
+        document.getElementById("entities").style.visibility = "visible";
     })
 
 });
