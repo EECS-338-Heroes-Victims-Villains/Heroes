@@ -104,3 +104,13 @@ if __name__ == "__main__":
     for i in all_entities:
         print(i.entity_name, i.surrounding_words, i.surrounding_words_connotations)
         print('\n')
+
+        # find the hero,villain, victim
+    score = {}
+    for i in all_entities:
+        score.update({i.entity_name: sum(i.surrounding_words_connotations)})
+    hero_key = max(score.keys(), key=(lambda k: score[k]))
+    villain_key = min(score, key=lambda k: score[k])
+    print(score)
+    print("The Hero is: ", hero_key)
+    print("The Villain is: ", villain_key)
