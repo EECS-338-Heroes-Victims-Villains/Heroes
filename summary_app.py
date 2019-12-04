@@ -7,6 +7,7 @@ import nltk
 from io import StringIO
 import sys
 from textblob import TextBlob
+import csv
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -27,10 +28,10 @@ def get_labels(sentence):
 
 if __name__ == "__main__":
     #url = 'https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'
+    url = 'https://www.usatoday.com/story/news/nation/2019/02/23/schlitterbahn-waterslide-charges-dismissed-caleb-schwabs-death-verruckt/2963747002/?fbclid=IwAR3yyJmtShJwnx04jmwyRXG5uqgy7SXxbbdjUtB2ohfn0YFfEHcl8STfOjs'
     #url='https://www.nytimes.com/2019/11/18/world/africa/drone-strikes-isis-libya.html?action=click&module=MoreInSection&pgtype=Article&region=Footer&contentCollection=Africa'
-    #url='https://www.history.com/topics/21st-century/obama-announces-death-of-osama-bin-laden-video' #WORKING
-    #url='https://www.nytimes.com/2019/10/15/world/asia/kashmir-militants.html'   #WORKING
-    url='https://www.usatoday.com/story/news/nation/2019/02/23/schlitterbahn-waterslide-charges-dismissed-caleb-schwabs-death-verruckt/2963747002/?fbclid=IwAR20QSRyvNZ-CB1rdbY4jsNrpJ5HGA5vka_YXU0QsGpmTFXlKR79JPoSUTI'  #water slide working
+    # url='https://www.history.com/topics/21st-century/obama-announces-death-of-osama-bin-laden-video' #WORKING
+    # url='https://www.nytimes.com/2019/10/15/world/asia/kashmir-militants.html' #WORKING
     respond = requests.get(url)
     data = respond.text
 
@@ -74,7 +75,8 @@ if __name__ == "__main__":
         surrounding_words = mystdout.getvalue()
         surrounding_words = surrounding_words.replace('\n', ' ')
         surrounding_words_list = surrounding_words.split('; ')
-        entitydict[entity] = surrounding_words_list
+        if not surrounding_words_list[0].isspace():
+            entitydict[entity] = surrounding_words_list
 
     #entitites that we want to rank (these are basically nouns/proper nouns
     print(entitydict)
@@ -86,6 +88,14 @@ if __name__ == "__main__":
         if i[1]=='PERSON' or i[1]=='GPE' or i[1]=='ORG':
             list_ent.append(i)
 
+    # Get all villian words
+    with open('victim_dictionary.csv', newline='') as csvfile:
+        victim_dictionary = []
+        reader = csv.reader(csvfile)
+        for row in reader:
+            victim_dictionary.append(row[0])
+
+    print(victim_dictionary)
     print(list_ent)
     #print('\n')
     #for i in entitydict:
@@ -94,36 +104,27 @@ if __name__ == "__main__":
     for i in list_ent:
         entity_names.append(i[0])
     entity_dictionary={key:0 for key in entity_names}
-    print(entity_dictionary)
+    print('entity names', entity_names)
+    potential_victims = {}
     for i in entitydict:
         score=TextBlob(str(entitydict[i])).sentiment
         #score=sentiment_analyzer_scores(str(entitydict[i]))
         for j in entity_names:
             if j.find(i):
                 entity_dictionary[i]=entity_dictionary.get(j)+score[0]
-                #entity_dictionary[i]=entity_dictionary.get(j)+score
         print(i,entitydict[i],score[0])  #for textblob
-        #print(i,entitydict[i],score)
-    print(entity_dictionary)
+        if score[0] <= 0:
+            potential_victims[i] = 0
+            for item in entitydict[i]:
+                if any(victim_word in item for victim_word in victim_dictionary):
+                    potential_victims[i] += 1
+    print('entity dictionary (updated score)', entity_dictionary)
+    print('potential victims ', potential_victims)
 
-    '''
-    from monkeylearn import MonkeyLearn
-    ml = MonkeyLearn('580b39862fa9b8af93a4bf37cd0d256832275a93')
-    #data = ["This is a great tool!"]
-    database=[]
-    model_id = 'cl_pi3C7JiL'
-    for i in entitydict:
-        try:
-            result = ml.classifiers.classify(model_id, entitydict[i])
-            r=result.body[0]
-            tag=r['classifications'][0]['tag_name']
-            print(i,tag)
-        except TypeError:
-            pass
-    '''
     #finding the hero and villain (entitiy with max and lowest score)
     hero_key=max(entity_dictionary.keys(), key=(lambda k: entity_dictionary[k]))
     villain_key=min(entity_dictionary,key=lambda k:entity_dictionary[k])
+    victim_key=max(potential_victims,key=lambda k:potential_victims[k])
     print("The Hero is: ", hero_key)
     print("The Villain is: ",villain_key)
-
+    print("The Victim is: ", victim_key)
