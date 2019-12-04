@@ -7,14 +7,14 @@ CORS(app, support_credentials=True)
 
 @app.route("/")
 def hello():
-    return "christ this iss annoying"
+    return "Hey! What are you doing here?"
 
 
 @app.route("/story_chars/", methods=['GET'])
 @cross_origin(support_credentials=True)
 def get_chars():
     tab_url = request.args.get("url")
-    print(jsonify(summary_app.main_func(tab_url)))
+    #print(jsonify(summary_app.main_func(tab_url)))
     return jsonify(summary_app.main_func(tab_url))
 
 
