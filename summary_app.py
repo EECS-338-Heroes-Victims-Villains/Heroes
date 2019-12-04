@@ -6,6 +6,7 @@ import spacy
 import nltk
 from io import StringIO
 import sys
+from textblob import TextBlob
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -23,9 +24,13 @@ def get_labels(sentence):
             if hasattr(chunk, 'label'):
                 print(chunk.label(), ' '.join(c[0] for c in chunk))
 
+
 if __name__ == "__main__":
-    url = 'https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'
-    #url='https://www.nytimes.com/2019/10/15/world/asia/kashmir-militants.html'
+    #url = 'https://www.nytimes.com/2019/10/16/world/asia/hong-kong-protests-carrie-lam.html'
+    #url='https://www.nytimes.com/2019/11/18/world/africa/drone-strikes-isis-libya.html?action=click&module=MoreInSection&pgtype=Article&region=Footer&contentCollection=Africa'
+    #url='https://www.history.com/topics/21st-century/obama-announces-death-of-osama-bin-laden-video' #WORKING
+    #url='https://www.nytimes.com/2019/10/15/world/asia/kashmir-militants.html'   #WORKING
+    url='https://www.usatoday.com/story/news/nation/2019/02/23/schlitterbahn-waterslide-charges-dismissed-caleb-schwabs-death-verruckt/2963747002/?fbclid=IwAR20QSRyvNZ-CB1rdbY4jsNrpJ5HGA5vka_YXU0QsGpmTFXlKR79JPoSUTI'  #water slide working
     respond = requests.get(url)
     data = respond.text
 
@@ -71,6 +76,7 @@ if __name__ == "__main__":
         surrounding_words_list = surrounding_words.split('; ')
         entitydict[entity] = surrounding_words_list
 
+    #entitites that we want to rank (these are basically nouns/proper nouns
     print(entitydict)
     print('\n')
     words = list(dict.fromkeys(words))
@@ -81,6 +87,43 @@ if __name__ == "__main__":
             list_ent.append(i)
 
     print(list_ent)
-    print('\n')
+    #print('\n')
+    #for i in entitydict:
+     #   print(i,entitydict[i])
+    entity_names=[]
+    for i in list_ent:
+        entity_names.append(i[0])
+    entity_dictionary={key:0 for key in entity_names}
+    print(entity_dictionary)
     for i in entitydict:
-        print(i,entitydict[i])
+        score=TextBlob(str(entitydict[i])).sentiment
+        #score=sentiment_analyzer_scores(str(entitydict[i]))
+        for j in entity_names:
+            if j.find(i):
+                entity_dictionary[i]=entity_dictionary.get(j)+score[0]
+                #entity_dictionary[i]=entity_dictionary.get(j)+score
+        print(i,entitydict[i],score[0])  #for textblob
+        #print(i,entitydict[i],score)
+    print(entity_dictionary)
+
+    '''
+    from monkeylearn import MonkeyLearn
+    ml = MonkeyLearn('580b39862fa9b8af93a4bf37cd0d256832275a93')
+    #data = ["This is a great tool!"]
+    database=[]
+    model_id = 'cl_pi3C7JiL'
+    for i in entitydict:
+        try:
+            result = ml.classifiers.classify(model_id, entitydict[i])
+            r=result.body[0]
+            tag=r['classifications'][0]['tag_name']
+            print(i,tag)
+        except TypeError:
+            pass
+    '''
+    #finding the hero and villain (entitiy with max and lowest score)
+    hero_key=max(entity_dictionary.keys(), key=(lambda k: entity_dictionary[k]))
+    villain_key=min(entity_dictionary,key=lambda k:entity_dictionary[k])
+    print("The Hero is: ", hero_key)
+    print("The Villain is: ",villain_key)
+
